@@ -7,7 +7,18 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
+    MessageEvent, TextMessage, TextSendMessage, TemplateSendMessage,
+    ButtonsTemplate
+)
+from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
+    SourceUser, SourceGroup, SourceRoom,
+    TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
+    ButtonsTemplate, URITemplateAction, PostbackTemplateAction,
+    CarouselTemplate, CarouselColumn, PostbackEvent,
+    StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
+    ImageMessage, VideoMessage, AudioMessage,
+    UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 import os
 app = Flask(__name__)
@@ -36,9 +47,32 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    buttons_template_message = TemplateSendMessage(
+            alt_text='Buttons template',
+            template=ButtonsTemplate(
+                thumbnail_image_url='https://example.com/image.jpg',
+                title='Menu',
+                text='Please select',
+                actions=[
+                PostbackTemplateAction(
+                    label='postback',
+                    text='postback text',
+                    data='action=buy&itemid=1'
+                    ),
+                MessageTemplateAction(
+                    label='message',
+                    text='message text'
+                    ),
+                URITemplateAction(
+                    label='uri',
+                    uri='http://example.com/'
+                    )
+                ]
+                )
+    )
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        buttons_template_message)
 
 @handler.default()
 def default(event):
