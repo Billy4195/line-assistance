@@ -23,3 +23,18 @@ class Database():
         except Exception as e:
             print(str(e))
 
+def createPttTable(board):
+    db = Database()
+
+    sql = 'CREATE TABLE IF NOT EXISTS {0} (' \
+                'title varchar[512],' \
+                'link varchar[256],' \
+                'pushCount int,' \
+                'pubDate date,' \
+                'author varchar[256],' \
+                'visited int default 0);'.format(board)
+    db.cmd(sql)
+    db.close()
+
+createPttTable('CodeJob')
+
