@@ -21,6 +21,7 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 import os
+from crawler import pttCrawler
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.environ['ACCESS_TOKEN'])
@@ -47,6 +48,8 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print(event.message)
+    pttCrawler('CodeJob')
     buttons_template_message = TemplateSendMessage(
             alt_text='Buttons template',
             template=ButtonsTemplate(
@@ -54,14 +57,9 @@ def handle_message(event):
                 title='Menu',
                 text='Please select',
                 actions=[
-                PostbackTemplateAction(
-                    label='postback',
-                    text='postback text',
-                    data='action=buy&itemid=1'
-                    ),
                 MessageTemplateAction(
                     label='message',
-                    text='message text'
+                    text=event.message.text
                     ),
                 URITemplateAction(
                     label='uri',
