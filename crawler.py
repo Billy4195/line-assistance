@@ -1,7 +1,7 @@
 import requests
 from datetime import date
 from bs4 import BeautifulSoup as BS
-from sql import createPttTable,storePttData
+from pttHandler import *
 
 def parseRowEntity(rowEntities):
     articles = list()
@@ -48,5 +48,22 @@ def pttCrawler(board,pages=2):
         prePageUrl = soup.select('div.btn-group-paging a')[1]['href']
         path = root_url + prePageUrl
 
+def truncateTitle(articles):
+    for article in articles:
+        article['title'] = article['title'].replace('[發案]','').lstrip()
+        if len(article['title']) > 17:
+            article['title'] = article['title'][:17] + '...'
+    return articles
+
+def getCaseJobArticles(board):
+    """
+    return [dict(title,link),..]
+    title len < 20
+    """
+    deleteOutdateArticles(board,day=2)
+    articles = queryArticles(board)
+    articles = truncateTitle(articles)
+    return articles
+
+
 root_url = 'https://www.ptt.cc'
-pttCrawler('CodeJob')

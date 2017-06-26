@@ -41,34 +41,3 @@ class Database():
             self.conn.close()
         except Exception as e:
             print('DB ERR close ' + str(e))
-
-def createPttTable(board):
-    db = Database()
-
-    sql = 'CREATE TABLE IF NOT EXISTS {0} (' \
-                'title varchar[512],' \
-                'link varchar[256] PRIMARY KEY,' \
-                'pushCount int,' \
-                'pubDate date,' \
-                'author varchar[256],' \
-                'visited int default 0);'.format(board)
-    db.cmd(sql)
-    db.close()
-
-def storePttData(board,data):
-    db = Database()
-
-    for entity in data:
-        sql = 'SELECT COUNT(*) FROM {board} WHERE link = \'{{{link}}}\';'.format(board=board,link=entity['link'])
-        existed = db.query(sql)[0][0]
-        if not existed:
-            sql = 'INSERT INTO {board} (title,link,pushCount,pubDate,author) VALUES '\
-                    '(\'{{{title}}}\',\'{{{link}}}\',{pushCount},\'{pubDate}\',\'{{{author}}}\');'.format(
-                    board=board,
-                    title=entity['title'],
-                    link=entity['link'],
-                    pushCount=entity['pushCount'],
-                    pubDate=entity['pubDate'],
-                    author=entity['author'])
-            db.cmd(sql)
-    db.close()

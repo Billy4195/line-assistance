@@ -21,7 +21,7 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 import os
-from crawler import pttCrawler
+from crawler import pttCrawler,getCaseJobArticles
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.environ['ACCESS_TOKEN'])
@@ -49,11 +49,28 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print(event.message)
-    if event.message.text == 'CodeJob':
-        pttCrawler('CodeJob')
+    if event.message.text in ['CodeJob','soho']:
+        board = event.message.text
+        pttCrawler(board)
+        aritcles = getCaseJobArticles(board)
+        action_list = []
+        for article in aritcles:
+            action_list.append(URITemplateAction(
+                label=article['title'],
+                uri='https://www.ptt.cc'+article['link']))
+        print(action_list)
+        buttons_message = TemplateSendMessage(
+                alt_text='PTT {0}'.format(board),
+                template=ButtonsTemplate(
+                    thumbnail_image_url='https://i.imgur.com/prgAiYk.jpg',
+                    title='PTT {0}'.format(board),
+                    text='選選選',
+                    actions=action_list)
+        )
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='Hello CodeJob'))
+            buttons_message
+        )
         return 0
 
     if event.message.text == 'soho':
@@ -66,7 +83,7 @@ def handle_message(event):
     buttons_template_message = TemplateSendMessage(
             alt_text='Buttons template',
             template=ButtonsTemplate(
-                thumbnail_image_url='https://example.com/image.jpg',
+                thumbnail_image_url='https://i.imgur.com/tUiZQdV.png',
                 title='Menu',
                 text='Please select',
                 actions=[
@@ -77,10 +94,6 @@ def handle_message(event):
                 MessageTemplateAction(
                     label='soho',
                     text='soho'
-                    ),
-                URITemplateAction(
-                    label='uri',
-                    uri='http://example.com/'
                     )
                 ]
                 )
