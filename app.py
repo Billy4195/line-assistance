@@ -49,7 +49,12 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print(event.message)
-    pttCrawler('CodeJob')
+    if event.message.text == 'CodeJob':
+        pttCrawler('CodeJob')
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='Hello CodeJob'))
+        return 0
     buttons_template_message = TemplateSendMessage(
             alt_text='Buttons template',
             template=ButtonsTemplate(
@@ -58,8 +63,8 @@ def handle_message(event):
                 text='Please select',
                 actions=[
                 MessageTemplateAction(
-                    label='message',
-                    text=event.message.text
+                    label='CodeJob',
+                    text='CodeJob'
                     ),
                 URITemplateAction(
                     label='uri',
