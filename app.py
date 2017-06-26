@@ -21,11 +21,12 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 import os
-from crawler import pttCrawler,getCaseJobArticles
+from crawler import getCaseJobArticles,triggerCrawler
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.environ['ACCESS_TOKEN'])
 handler = WebhookHandler(os.environ['CHANNEL_SECRET'])
+triggerCrawler()
 
 
 @app.route("/callback", methods=['POST'])
@@ -51,7 +52,6 @@ def handle_message(event):
     print(event.message)
     if event.message.text in ['CodeJob','soho']:
         board = event.message.text
-        pttCrawler(board)
         aritcles = getCaseJobArticles(board)
         action_list = []
         for article in aritcles:
@@ -109,7 +109,6 @@ def default(event):
         event.reply_token,
         TextSendMessage(text='Currently Not Support None Text Msg'))
     pass
-
 
 if __name__ == "__main__":
     app.run()

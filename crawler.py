@@ -2,6 +2,7 @@ import requests
 from datetime import date
 from bs4 import BeautifulSoup as BS
 from pttHandler import *
+from threading import Timer
 
 def parseRowEntity(rowEntities):
     articles = list()
@@ -65,5 +66,13 @@ def getCaseJobArticles(board):
     articles = truncateTitle(articles)
     return articles
 
+def triggerCrawler():
+    for board in ['CodeJob','soho']:
+        pttCrawler(board)
+
+    print("Crawler finished")
+    timer = Timer(7200,triggerCrawler)
+    timer.start()
 
 root_url = 'https://www.ptt.cc'
+
