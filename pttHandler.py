@@ -18,8 +18,9 @@ def storePttData(board,data):
     db = Database()
 
     for entity in data:
-        sql = 'SELECT COUNT(*) FROM {board} WHERE link = \'{{{link}}}\';'.format(board=board,link=entity['link'])
-        existed = db.query(sql)[0][0]
+        sql = 'SELECT pushCount FROM {board} WHERE link = \'{{{link}}}\';'.format(board=board,link=entity['link'])
+        result = db.query(sql)
+        existed = len(result)
         if not existed:
             sql = 'INSERT INTO {board} (title,link,pushCount,pubDate,author) VALUES '\
                     '(\'{{{title}}}\',\'{{{link}}}\',{pushCount},\'{pubDate}\',\'{{{author}}}\');'.format(
@@ -30,6 +31,19 @@ def storePttData(board,data):
                     pubDate=entity['pubDate'],
                     author=entity['author'])
             db.cmd(sql)
+        else:
+            pushCount = result[0][0]
+            sql = 'SELECT COUNT(*) FROM {board} WHERE pushCount = {pushCount} and link = \'{{{link}}}\''.format(
+                board=board,
+                pushCount=entity['pushCount'],
+                link=entity['link'])
+            unchanged = db.query(sql)[0][0]
+            if not unchanged:
+                sql = 'UPDATE {board} SET pushCount = {pushCount} WHERE link = \'{{{link}}}\''.format(
+                    board=board,
+                    pushCount=entity['pushCount'],
+                    link=entity['link'])
+                db.cmd(sql)
     db.close()
 
 def deleteOutdateArticles(board,day=2):
