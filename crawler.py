@@ -9,7 +9,11 @@ def parseRowEntity(rowEntities):
         pushCount = row.select('div.nrec')[0].text
         pushCount = int(pushCount) if len(pushCount) else 0
 
-        titleDiv = row.select('div.title a')[0]
+        titleDiv = row.select('div.title a')
+        if len(titleDiv):
+            titleDiv = titleDiv[0]
+        else:
+            continue
         link = titleDiv['href']
         title = titleDiv.text
 
