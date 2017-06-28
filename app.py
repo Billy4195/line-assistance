@@ -73,13 +73,6 @@ def handle_message(event):
         )
         return 0
 
-    if event.message.text == 'soho':
-        pttCrawler('soho')
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='Hello soho'))
-        return 0
-
     buttons_template_message = TemplateSendMessage(
             alt_text='Buttons template',
             template=ButtonsTemplate(
