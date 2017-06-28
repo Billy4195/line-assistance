@@ -50,11 +50,13 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print(event.message)
-    if event.message.text.lower() in ['codejob','soho']:
+    if event.message.text.lower() in ['codejob','soho','nctu_talk']:
         if event.message.text.lower() == 'codejob':
             board = 'CodeJob'
         elif event.message.text.lower() == 'soho':
             board = 'soho'
+        elif event.message.text.lower() == 'nctu_talk':
+            board = 'NCTU_TALK'
 
         aritcles = getCaseJobArticles(board)
         action_list = []
@@ -91,6 +93,10 @@ def handle_message(event):
                 MessageTemplateAction(
                     label='soho',
                     text='soho'
+                    ),
+                MessageTemplateAction(
+                    label='NCTU_TALK',
+                    text='NCTU_TALK'
                     )
                 ]
                 )

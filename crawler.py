@@ -8,7 +8,10 @@ def parseRowEntity(rowEntities):
     articles = list()
     for row in rowEntities:
         pushCount = row.select('div.nrec')[0].text
-        pushCount = int(pushCount) if len(pushCount) else 0
+        try:
+            pushCount = int(pushCount)
+        except:
+            pushCount = 0
 
         titleDiv = row.select('div.title a')
         if len(titleDiv):
@@ -67,7 +70,7 @@ def getCaseJobArticles(board):
     return articles
 
 def triggerCrawler():
-    for board in ['CodeJob','soho']:
+    for board in ['CodeJob','soho','NCTU_TALK']:
         pttCrawler(board)
 
     print("Crawler finished")
