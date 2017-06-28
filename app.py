@@ -21,7 +21,7 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 import os
-from crawler import getCaseJobArticles,triggerCrawler
+from crawler import getCaseJobArticles,triggerCrawler,getDiscussionArticles
 app = Flask(__name__)
 
 line_bot_api = LineBotApi(os.environ['ACCESS_TOKEN'])
@@ -64,7 +64,6 @@ def handle_message(event):
             action_list.append(URITemplateAction(
                 label=article['title'],
                 uri='https://www.ptt.cc'+article['link']))
-        print(action_list)
         buttons_message = TemplateSendMessage(
                 alt_text='PTT {0}'.format(board),
                 template=ButtonsTemplate(
@@ -78,32 +77,86 @@ def handle_message(event):
             buttons_message
         )
         return 0
-
-    buttons_template_message = TemplateSendMessage(
-            alt_text='Buttons template',
+    if event.message.text.lower() in ['tech_job','soft_job','stupidclown']:
+        if event.message.text.lower() == 'tech_job':
+            board = 'Tech_job'
+        elif event.message.text.lower() == 'soft_job':
+            board = 'Soft_Job'
+        elif event.message.text.lower() == 'stupidclown':
+            board = 'StupidClown'
+        
+        aritcles = getDiscussionArticles(board)
+        action_list = []
+        for article in aritcles:
+            action_list.append(URITemplateAction(
+                label=article['title'],
+                uri='https://www.ptt.cc'+article['link']))
+        buttons_message = TemplateSendMessage(
+            alt_text='PTT {0}'.format(board),
             template=ButtonsTemplate(
-                thumbnail_image_url='https://i.imgur.com/tUiZQdV.png',
-                title='Menu',
-                text='Please select',
-                actions=[
-                MessageTemplateAction(
-                    label='CodeJob',
-                    text='CodeJob'
-                    ),
-                MessageTemplateAction(
-                    label='soho',
-                    text='soho'
-                    ),
-                MessageTemplateAction(
-                    label='NCTU_TALK',
-                    text='NCTU_TALK'
-                    )
-                ]
+                thumbnail_image_url='https://i.imgur.com/WBdWmBt.jpg',
+                title='PTT {0}'.format(board),
+                text='選選選',
+                actions=action_list
+            )
+        )
+        line_bot_api.reply_message(
+            event.reply_token,
+            buttons_message
+        )
+        return 0
+    
+    caseJobBoard = CarouselColumn(
+        thumbnail_image_url='https://i.imgur.com/tUiZQdV.png',
+        title='Menu',
+        text='Please select',
+        actions=[
+            MessageTemplateAction(
+                label='CodeJob',
+                text='CodeJob'
+                ),
+            MessageTemplateAction(
+                label='soho',
+                text='soho'
+                ),
+            MessageTemplateAction(
+                label='NCTU_TALK',
+                text='NCTU_TALK'
                 )
+        ]
     )
+    discussionBoard = CarouselColumn(
+        thumbnail_image_url='https://i.imgur.com/QgxjXUf.jpg',
+        title='Discussion board',
+        text='Please select',
+        actions=[
+            MessageTemplateAction(
+                label='Soft Job',
+                text='Soft_job'
+                ),
+            MessageTemplateAction(
+                label='Tech Job',
+                text='Tech_job'
+                ),
+            MessageTemplateAction(
+                label='StupidClown',
+                text='StupidClown'
+                )
+        ]
+    )
+    carousel_template_message = TemplateSendMessage(
+        alt_text='PTT cralwer',
+        template=CarouselTemplate(
+            columns=[
+                caseJobBoard,
+                discussionBoard
+            ]
+        )
+    )
+    print(carousel_template_message)
     line_bot_api.reply_message(
         event.reply_token,
-        buttons_template_message)
+        carousel_template_message)
 
 @handler.default()
 def default(event):

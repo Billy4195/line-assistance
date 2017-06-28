@@ -19,7 +19,7 @@ def parseRowEntity(rowEntities,day):
         else:
             continue
         link = titleDiv['href']
-        title = titleDiv.text
+        title = titleDiv.text.replace('\'','').replace('"','')
 
         thisYear = date.today().year
         pubDate = row.select('div.date')[0].text.split('/')
@@ -74,9 +74,18 @@ def getCaseJobArticles(board):
     articles = truncateTitle(articles)
     return articles
 
+def getDiscussionArticles(board):
+    deleteOutdateArticles(board,day=5)
+    articles = queryArticles(board,condition='pushCount')
+    articles = truncateTitle(articles)
+    return articles
+
 def triggerCrawler():
     for board in ['CodeJob','soho','NCTU_TALK']:
         pttCrawler(board)
+
+    for board in ['Tech_job','Soft_Job','StupidClown']:
+        pttCrawler(board,pages=5,day=5)
 
     print("Crawler finished")
     timer = Timer(7200,triggerCrawler)

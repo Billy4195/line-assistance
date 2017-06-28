@@ -56,12 +56,15 @@ def deleteOutdateArticles(board,day=2):
 
     db.close()
 
-def queryArticles(board):
+def queryArticles(board,condition='visit'):
     countLimit = 4
     db = Database()
 
     articles = []
-    sql = 'SELECT title,link FROM {board} ORDER BY visited ASC,pubDate DESC LIMIT 4'.format(board=board)
+    if condition == 'visit':
+        sql = 'SELECT title,link FROM {board} ORDER BY visited ASC,pubDate DESC LIMIT 4'.format(board=board)
+    else:
+        sql = 'SELECT title,link FROM {board} ORDER BY pushCount DESC,pubDate DESC LIMIT 4'.format(board=board)
     unvisitedArticles = db.query(sql)
     for article in unvisitedArticles:
         articles.append(dict(title=article[0][0],link=article[1][0]))
