@@ -1,10 +1,10 @@
 import requests
-from datetime import date
+from datetime import date,timedelta
 from bs4 import BeautifulSoup as BS
 from pttHandler import *
 from threading import Timer
 
-def parseRowEntity(rowEntities):
+def parseRowEntity(rowEntities,day):
     articles = list()
     for row in rowEntities:
         pushCount = row.select('div.nrec')[0].text
@@ -23,13 +23,16 @@ def parseRowEntity(rowEntities):
 
         thisYear = date.today().year
         pubDate = row.select('div.date')[0].text.split('/')
-        pubDate = date(thisYear,int(pubDate[0]),int(pubDate[1])).strftime('%Y-%m-%d')
-
+        pubDate = date(thisYear,int(pubDate[0]),int(pubDate[1]))
+        if (date.today() -timedelta(days=day)) <= pubDate:
+            pubDate = pubDate.strftime('%Y-%m-%d')
+        else:
+            continue
         author = row.select('div.author')[0].text
         articles.append(dict(pushCount=pushCount,title=title,link=link,pubDate=pubDate,author=author))
     return articles
 
-def pttCrawler(board,pages=2):
+def pttCrawler(board,pages=2,day=2):
     curPage = 0
     path =  'https://www.ptt.cc/bbs/{0}/index.html'.format(board)
     createPttTable(board)
@@ -45,7 +48,9 @@ def pttCrawler(board,pages=2):
             if 'r-list-sep' in row['class']:
                 break
             rowEntities.append(row)
-        articles = parseRowEntity(rowEntities)
+        articles = parseRowEntity(rowEntities,day)
+        if len(articles) == 0:
+            break
         storePttData(board,articles)
         curPage += 1
 
